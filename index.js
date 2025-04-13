@@ -33,7 +33,7 @@ const PORT = process.env.PORT || 3001;
 
 // Define CORS options - make this more robust
 const corsOptions = {
-  origin: ['https://administrator.tuplrc-cla.com'],
+  origin: ['https://administrator.tuplrc-cla.com', 'https://api2.tuplrc-cla.com'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token'],
   credentials: true,
@@ -53,7 +53,7 @@ const httpServer = createServer(app);
 // Initialize Socket.IO with the HTTP server
 const io = new Server(httpServer, {
   cors: {
-    origin: ['https://administrator.tuplrc-cla.com'],
+    origin: ['https://administrator.tuplrc-cla.com', 'https://api2.tuplrc-cla.com'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -77,21 +77,6 @@ io.on('connection', (socket) => {
 
 // Allow parsing of JSON request bodies
 app.use(express.json());
-
-// Add custom middleware to ensure CORS headers are set for all responses
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://administrator.tuplrc-cla.com');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-CSRF-Token');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(204);
-  }
-  
-  next();
-});
 
 // API Routes
 app.use("/api/resources", resourceRoutes);
