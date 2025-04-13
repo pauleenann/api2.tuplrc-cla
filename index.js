@@ -31,6 +31,22 @@ const app = express();
 app.use(cookieParser());
 const PORT = process.env.PORT || 3001;
 
+// Define CORS options - make this more robust
+const corsOptions = {
+  origin: ['https://administrator.tuplrc-cla.com'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token'],
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+};
+
+// Apply CORS middleware with options
+app.use(cors(corsOptions));
+
+// Explicitly handle OPTIONS requests
+app.options('*', cors(corsOptions));
+
 // Create HTTP server from Express app
 const httpServer = createServer(app);
 
@@ -39,7 +55,8 @@ const io = new Server(httpServer, {
   cors: {
     origin: ['https://administrator.tuplrc-cla.com'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    credentials: true
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
   }
 });
 
@@ -58,13 +75,25 @@ io.on('connection', (socket) => {
   });
 });
 
+// Allow parsing of JSON request bodies
 app.use(express.json());
-app.use(cors({
-  origin: ['https://administrator.tuplrc-cla.com'],
-  methods: 'GET,POST,PUT,DELETE,OPTIONS',
-  credentials: true
-}));    
 
+// Add custom middleware to ensure CORS headers are set for all responses
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://administrator.tuplrc-cla.com');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-CSRF-Token');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  
+  next();
+});
+
+// API Routes
 app.use("/api/resources", resourceRoutes);
 app.use("/api/data", dataRoutes); 
 app.use("/api/user", userRoutes);
@@ -81,6 +110,11 @@ app.use('/api/validate-tup-id', validateTupId);
 app.use('/api/online-catalog', onlineCatalogRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/advanced-search', advancedSearchRoutes);
+
+// Health check endpoint that explicitly sets CORS headers
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'ok', message: 'Server is running' });
+});
 
 /*--------------check overdue resources using cron-------- */
 // check 
@@ -109,18 +143,10 @@ cron.schedule('0 0 30 8 *', () => {
   inactivePatron();
 });
 
-// run every minute for testing purposes
-// cron.schedule('* * * * *', () => {
-//   console.log('Cron running to set patrons to inactive');
-//   inactivePatron();
-// });
-
-
-
-
 // Start the server
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`CORS configured for: https://administrator.tuplrc-cla.com`);
 });
 
 // Export io for external use if needed
