@@ -35,7 +35,7 @@ const PORT = process.env.PORT || 8080;
 const corsOptions = {
   origin: ['https://administrator.tuplrc-cla.com', 'https://api2.tuplrc-cla.com','http://localhost:8080'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
   preflightContinue: false,
   optionsSuccessStatus: 204
@@ -56,7 +56,7 @@ const io = new Server(httpServer, {
     origin: ['https://administrator.tuplrc-cla.com', 'https://api2.tuplrc-cla.com','http://localhost:8080'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+    allowedHeaders: ['Content-Type', 'Authorization'],
   }
 });
 
