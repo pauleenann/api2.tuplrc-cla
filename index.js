@@ -33,7 +33,7 @@ const PORT = process.env.PORT || 8080;
 
 // Define CORS options - make this more robust
 const corsOptions = {
-  origin: ['https://administrator.tuplrc-cla.com', 'https://api2.tuplrc-cla.com'],
+  origin: ['https://administrator.tuplrc-cla.com', 'https://api2.tuplrc-cla.com','http://localhost:8080'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token'],
   credentials: true,
@@ -53,7 +53,7 @@ const httpServer = createServer(app);
 // Initialize Socket.IO with the HTTP server
 const io = new Server(httpServer, {
   cors: {
-    origin: ['https://administrator.tuplrc-cla.com', 'https://api2.tuplrc-cla.com'],
+    origin: ['https://administrator.tuplrc-cla.com', 'https://api2.tuplrc-cla.com','http://localhost:8080'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
